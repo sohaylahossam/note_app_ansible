@@ -1,0 +1,96 @@
+---
+- name: Install dependencies
+  yum:
+    name:
+      - python3
+      - python3-pip
+      - sqlite
+    state: present
+  become: true
+
+- name: Install Flask and Jinja2
+  pip:
+    name:
+      - flask
+      - jinja2
+    executable: pip3
+  become: true
+
+- name: Create application directory structure
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+    owner: ec2-user
+    group: ec2-user
+  loop:
+    - /opt/note_app
+    - /opt/note_app/templates
+    - /backup
+  become: true
+
+- name: Copy Flask application file
+  copy:
+    src: app.py
+    dest: /opt/note_app/app.py
+    mode: '0755'
+    owner: ec2-user
+    group: ec2-user
+  become: true
+
+- name: Copy HTML template
+  copy:
+    src: index.html
+    dest: /opt/note_app/templates/index.html
+    mode: '0644'
+    owner: ec2-user
+    group: ec2-user
+  become: true
+
+- name: Copy backup script
+  copy:
+    src: backup.sh
+    dest: /usr/local/bin/backup_notes.sh
+    mode: '0755'
+    owner: ec2-user
+    group: ec2-user
+  become: true
+
+- name: Create systemd service for Flask app
+  copy:
+    dest: /etc/systemd/system/noteapp.service
+    content: |
+      [Unit]
+      Description=Note Taking Flask App
+      After=network.target
+
+      [Service]
+      ExecStart=/usr/bin/python3 /opt/note_app/app.py
+      WorkingDirectory=/opt/note_app
+      Restart=always
+      User=ec2-user
+      Environment=PYTHONUNBUFFERED=1
+
+      [Install]
+      WantedBy=multi-user.target
+    mode: '0644'
+  become: true
+
+- name: Reload systemd to read new service
+  systemd:
+    daemon_reload: true
+  become: true
+
+- name: Enable and start noteapp service
+  systemd:
+    name: noteapp
+    enabled: true
+    state: started
+  become: true
+
+- name: Stop and disable Apache if installed
+  service:
+    name: httpd
+    state: stopped
+    enabled: false
+  become: true

@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+<head>
+    <title>Notes</title>
+</head>
+<body>
+    <h1>Write a note</h1>
+    <form method="POST">
+        <textarea name="note"></textarea><br>
+        <button type="submit">Save</button>
+    </form>
+    <h2>Saved Notes</h2>
+    {% for content, created_at in notes %}
+        <p><strong>{{ created_at }}</strong>: {{ content }}</p>
+    {% endfor %}
+</body>
+</html>

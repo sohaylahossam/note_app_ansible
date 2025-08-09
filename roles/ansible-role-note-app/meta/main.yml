@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  role_name: note_app
+  author: Sohayla Hossam
+  description: Deploy a Flask note-taking web app with SQLite on Amazon Linux
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Amazon
+      versions:
+        - "2023"
+  galaxy_tags:
+    - flask
+    - sqlite
+    - webapp
+    - devops
+dependencies: []
+
